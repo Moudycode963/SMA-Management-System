@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: security-project-app
+    container_name: security_app
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+    env_file:
+      - .env # 👈 PHP holt sich hier das Passwort
+
+  db:
+    image: mysql:8.0
+    container_name: security_db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    # 👇 WICHTIG: Wir mappen die .env Variablen auf die MySQL-Variablen
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - security-net
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: security_pma
+    environment:
+      PMA_HOST: db
+      PMA_USER: ${DB_USERNAME}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8091:80"
+    depends_on:
+      - db
+    networks:
+      - security-net
+
+networks:
+  security-net:
+    driver: bridge
+
+volumes:
+  db_data:
