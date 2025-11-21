@@ -1,0 +1,22 @@
+{
+  "name": "vendor_name/SMA-Management-System",
+  "description": "Security Management System",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "AhmadAboShameh",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+    "php": "^8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  }
+}
+
+

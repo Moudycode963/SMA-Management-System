@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # 1. Der Webserver & PHP Container
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile # Wir nutzen unser eigenes Dockerfile
+    image: security-project-app
+    container_name: security_app
+    restart: unless-stopped
+    ports:
+      - "8080:80" # Dein PC (8080) -> Container (80)
+    volumes:
+      - ./:/var/www/html # Spiegelt deinen Code in den Container
+    depends_on:
+      - db
+    networks:
+      - security-net
+
+  # 2. Die Datenbank
+  db:
+    image: mysql:8.0
+    container_name: security_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: security_db
+      MYSQL_ROOT_PASSWORD: rootpassword # Nur für Dev! In Prod via Secrets nutzen.
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql # WICHTIG: Damit Daten beim Neustart bleiben!
+    networks:
+      - security-net
+
+  # 3. Datenbank-Oberfläche (Optional, aber empfohlen)
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: security_pma
+    environment:
+      PMA_HOST: db
+      PMA_USER: user
+      PMA_PASSWORD: password
+    ports:
+      - "8081:80" # Erreichbar unter localhost:8081
+    depends_on:
+      - db
+    networks:
+      - security-net
+
+# Netzwerke definieren (damit Container sich "sehen")
+networks:
+  security-net:
+    driver: bridge
+
+# Volumes definieren (Persistente Speicherung)
+volumes:
+  db_data:
