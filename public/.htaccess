@@ -1,1 +1,10 @@
 # Leitet alle Anfragen auf die index.php um
+Options -MultiViews
+RewriteEngine On
+
+# Wenn die angeforderte Datei oder der Ordner existiert (z.B. ein Bild), liefer es aus
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Ansonsten leite alles an index.php weiter
+RewriteRule ^ index.php [QSA,L]
